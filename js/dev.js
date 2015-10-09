@@ -121,12 +121,13 @@ function buyNow() {
 		
 		console.log("time:" + data.remainTime + "  price:" + currentPrice+"  username:"+currentNickName);
 		price = currentPrice + $("#raise_price").val();
-		if (currentPrice <= maxPrice && nickname.indexOf(currentNickName) != -1 ) {
+		if (currentPrice <= maxPrice && nickname.indexOf(currentNickName) == -1 ) {
 			var buyUrl = "http://paimai.jd.com/services/bid.action?t=" + time+ "&proxyFlag=0&bidSource=0&paimaiId=" + uid + "&price="+ price;
 			$.get(buyUrl, function(data) {
 				sayMsg(data, price);}, 'json');
 		} else {
 			console.log("%c超出限制价格,停止抢购！", "color:red;");
+			console.log("time:" + data.remainTime + "  price:" + currentPrice+"  username:"+currentNickName);
 			started = false;
 			stopBuy();
 		}
