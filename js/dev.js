@@ -48,8 +48,8 @@ function startAuction(e) {
 	// start Auction Interval
 	queryPrice();
 	
-	// strat Auction Timer
-	stratAuctionTimer();
+	// start Auction Timer
+	startAuctionTimer();
 	started = true;
 }
 
@@ -83,17 +83,15 @@ function queryPrice() {
 	$.get(queryUrl,function(data) {
 			if (data){
 						currentPrice = data.currentPrice * 1;
-						currentNickName = data.currentUser;
+						currentNickName = data.bidList[0].username;
+						//currentNickName = data.currentUser;
 		
 						$("#msgDiv").html('<div class="alert alert-success" role="alert">当前价格：￥'
 										+ currentPrice + '&emsp;出价人：'
 										+ currentNickName + '</div>');
 						console.log("time:" + data.remainTime + "  price:" + currentPrice+"  username:"+currentNickName);
 						
-						if( nickname.indexOf(currentNickName) != -1 ){
-							// console.log("%c目前最高出价人还是你！", "color:red;");
-							$("#msgDiv").html('<div class="alert alert-success" role="alert">目前最高出价人还是你!</div>');
-						} else if( currentPrice > maxPrice ){
+						if( currentPrice > maxPrice ){
 							// console.log("%c超出限定价格停止抢购！", "color:red;");
 							$("#msgDiv").html('<div class="alert alert-danger" role="alert">超出限定价格停止抢购！</div>');
 							started = false;
@@ -117,17 +115,17 @@ function buyNow() {
 	var queryUrl = "http://paimai.jd.com/json/current/englishquery?paimaiId="+ uid + "&skuId=0&start=0&end=1&t=" + time;
 	$.get(queryUrl, function(data) {
 		currentPrice = data.currentPrice * 1;
-		currentNickName = data.currentUser;
+		//currentNickName = data.currentUser;
+		currentNickName = data.bidList[0].username;
 		
 		console.log("time:" + data.remainTime + "  price:" + currentPrice+"  username:"+currentNickName);
-		price = currentPrice + $("#raise_price").val();
-		if (currentPrice <= maxPrice && nickname.indexOf(currentNickName) == -1 ) {
+		price = currentPrice + 1 * $("#raise_price").val();
+		if (currentPrice <= maxPrice && nickname.indexOf(currentNickName.substring(4)) == -1 ) {
 			var buyUrl = "http://paimai.jd.com/services/bid.action?t=" + time+ "&proxyFlag=0&bidSource=0&paimaiId=" + uid + "&price="+ price;
 			$.get(buyUrl, function(data) {
 				sayMsg(data, price);}, 'json');
 		} else {
 			console.log("%c超出限制价格,停止抢购！", "color:red;");
-			console.log("time:" + data.remainTime + "  price:" + currentPrice+"  username:"+currentNickName);
 			started = false;
 			stopBuy();
 		}
@@ -135,7 +133,7 @@ function buyNow() {
 
 }
 
-function stratAuctionTimer() {
+function startAuctionTimer() {
 	var remainTime;
 	var offset = $("#get_price_time").val();
 	var intervalTime = $("#interval_time").val();
